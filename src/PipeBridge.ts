@@ -28,7 +28,7 @@ class PipeBridge extends EventEmitter {
 	constructor(private config?: PipeBridgeConfig) {
 		super();
 		this.config = config;
-		if (process) {
+		if (typeof process !== 'undefined') {
 			process.removeAllListeners();
 			process.on('message', (data: EventData) => {
 				this.emit(`event:${data.event}`, data.data);
