@@ -1,8 +1,10 @@
-import { x11Pipe } from "./X11Pipe";
-
-import { x11PipeChild } from "./X11PipeChild";
+import { 
+	pipeBridge,
+	PipeBridge
+} from "./PipeBridge";
 
 export {
-	x11Pipe,
-	x11PipeChild
+	PipeBridge
 };
+
+export default pipeBridge;
