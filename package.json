@@ -1,15 +1,15 @@
 {
   "name": "electron-pipe-bridge",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Lightweight IPC bridge for Electron to launch and communicate with sub-apps (.asar) via low-level system pipes (stdio 3/4).",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
-  "types": "./dist/index.d.ts", 
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.mjs",
-      "require": "./dist/index.js" 
+      "require": "./dist/index.js"
     }
   },
   "files": [
@@ -36,7 +36,7 @@
     "fs": false
   },
   "keywords": [
-	"electron",
+    "electron",
     "ipc",
     "spawn",
     "pipe",
