@@ -22,7 +22,14 @@ type PipeBridgeConfig = {
 	};
 };
 
-class PipeBridge extends EventEmitter {
+type PipeEvents = {
+	'start': [];
+    'error': [error: Error];
+    'close': [];
+	'message': [data: any]
+};
+
+class PipeBridge extends EventEmitter<PipeEvents> {
 	public process?: ChildProcess;
 
 	constructor(private config?: PipeBridgeConfig) {
@@ -96,11 +103,23 @@ class PipeBridge extends EventEmitter {
 
 			if (!this.process) return;
 			
-			this.process.on('spawn', resolve);
-			this.process.on('error', reject);
+			this.process.on('spawn', (e) => {
+				resolve(e);
+				this.emit('start');
+			});
+
+			this.process.on('error', (e) => {
+				reject(e);
+				this.emit('error', e);
+			});
 
 			this.process.on('close', () => {
 				this.process = undefined;
+				this.emit('close');
+			});
+
+			this.process.on('message', (data) => {
+				this.emit('message', data);
 			});
 		});
 	}
