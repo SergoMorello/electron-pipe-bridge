@@ -5,29 +5,7 @@ import { ChildProcess, spawn } from 'child_process';
 import path from 'path';
 import EventEmitter from "events";
 import fs from "fs";
-
-type EventData = {
-	event: string;
-	data: any;
-};
-
-type PipeBridgeConfig = {
-	asar?: {
-		debugPath: string;
-		releasePath: string;
-	};
-	binary?: {
-		path?: string;
-		selfPath?: string;
-	};
-};
-
-type PipeEvents = {
-	'start': [];
-    'error': [error: Error];
-    'close': [];
-	'message': [data: any]
-};
+import { EventData, PipeBridgeConfig, PipeEvents, PipeMessageType } from "./types";
 
 class PipeBridge extends EventEmitter<PipeEvents> {
 	public process?: ChildProcess;
@@ -40,6 +18,7 @@ class PipeBridge extends EventEmitter<PipeEvents> {
 			process.on('message', (data: EventData) => {
 				this.emit(`event:${data.event}`, data.data);
 			});
+			this.send('__isReady', undefined, 'comamnd');
 		}
 	}
 
@@ -102,7 +81,7 @@ class PipeBridge extends EventEmitter<PipeEvents> {
 			this.makeProcess();
 
 			if (!this.process) return;
-			
+
 			this.process.on('spawn', (e) => {
 				resolve(e);
 				this.emit('start');
@@ -118,8 +97,14 @@ class PipeBridge extends EventEmitter<PipeEvents> {
 				this.emit('close');
 			});
 
-			this.process.on('message', (data) => {
-				this.emit('message', data);
+			this.process.on('message', (data: EventData) => {
+				if (data.type === 'comamnd') {
+					if (data.event === '__isReady') {
+						this.emit('ready');
+					}
+				}else{
+					this.emit('message', data);
+				}
 			});
 		});
 	}
@@ -129,16 +114,18 @@ class PipeBridge extends EventEmitter<PipeEvents> {
 		this.process.kill();
 	}
 
-	public send(event: string, data: any) {
+	public send(event: string, data?: any, type?: PipeMessageType) {
 		if (this.process) {
 			this.process.send({
 				event,
-				data
+				data,
+				type
 			});
 		} else if (typeof process.send === 'function') {
 			process.send({
 				event,
-				data
+				data,
+				type
 			});
 		}
 	}
@@ -146,7 +133,7 @@ class PipeBridge extends EventEmitter<PipeEvents> {
 	public receive(event: string, callback: (data: any) => void) {
 		if (this.process) {
 			this.process.on('message', (result: EventData) => {
-				if (result.event === event) {
+				if (result.type === undefined && result.event === event) {
 					callback(result.data);
 				}
 			});
