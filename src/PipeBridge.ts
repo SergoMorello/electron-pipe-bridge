@@ -18,7 +18,6 @@ class PipeBridge extends EventEmitter<PipeEvents> {
 			process.on('message', (data: EventData) => {
 				this.emit(`event:${data.event}`, data.data);
 			});
-			this.send('__isReady', undefined, 'comamnd');
 		}
 	}
 
@@ -112,6 +111,10 @@ class PipeBridge extends EventEmitter<PipeEvents> {
 	public stop() {
 		if (!this.process) return;
 		this.process.kill();
+	}
+
+	public ready() {
+		this.send('__isReady', undefined, 'comamnd');
 	}
 
 	public send(event: string, data?: any, type?: PipeMessageType) {
