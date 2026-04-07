@@ -9,6 +9,7 @@ import { EventData, PipeBridgeConfig, PipeEvents, PipeMessageType } from "./type
 
 class PipeBridge extends EventEmitter<PipeEvents> {
 	public process?: ChildProcess;
+	public readonly isChild: boolean = false;
 
 	constructor(private config?: PipeBridgeConfig) {
 		super();
@@ -18,14 +19,7 @@ class PipeBridge extends EventEmitter<PipeEvents> {
 			process.on('message', (data: EventData) => {
 				this.emit(`event:${data.event}`, data.data);
 			});
-		}
-	}
-
-	public get isChild() {
-		if (typeof process !== 'undefined') {
-			return process.env.IS_PIPE_BRIDGE_CHILD === 'true';
-		}else{
-			return false;
+			this.isChild = process.env.IS_PIPE_BRIDGE_CHILD === 'true';
 		}
 	}
 
