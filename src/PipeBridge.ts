@@ -21,6 +21,10 @@ class PipeBridge extends EventEmitter<PipeEvents> {
 		}
 	}
 
+	public get isChild() {
+		return process.env.IS_PIPE_BRIDGE_CHILD === 'true';
+	}
+
 	private makeProcess() {
 		if (this.process || !this.config) return;
 
@@ -51,7 +55,8 @@ class PipeBridge extends EventEmitter<PipeEvents> {
 				detached: false,
 				stdio:  ['inherit', 'inherit', 'inherit', 'ipc'],
 				env: {
-					...process.env
+					...process.env,
+					IS_PIPE_BRIDGE_CHILD: 'true'
 				}
 			});
 		}
