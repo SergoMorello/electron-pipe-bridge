@@ -22,7 +22,11 @@ class PipeBridge extends EventEmitter<PipeEvents> {
 	}
 
 	public get isChild() {
-		return process.env.IS_PIPE_BRIDGE_CHILD === 'true';
+		if (typeof process !== 'undefined') {
+			return process.env.IS_PIPE_BRIDGE_CHILD === 'true';
+		}else{
+			return false;
+		}
 	}
 
 	private makeProcess() {
