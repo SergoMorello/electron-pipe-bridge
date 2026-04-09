@@ -23,15 +23,31 @@ class PipeBridge extends EventEmitter<PipeEvents> {
 		}
 	}
 
+	private getArgs() {
+		if (this.config?.args) {
+			return this.config?.args;
+		}
+
+		if (this.config?.enableParentArgs) {
+			const offset = app.isPackaged ? 1 : 2;
+			const parentArgs = process.argv.slice(offset);
+			return parentArgs;
+		}
+
+		return [];
+	}
+
 	private makeProcess() {
 		if (this.process || !this.config) return;
+
+		const args = this.getArgs();
 
 		if (this.config.asar?.releasePath && this.config.asar?.debugPath) {
 			const childPath = app.isPackaged
 				? this.config?.asar?.releasePath
 				: path.join(app.getAppPath(), this.config?.asar?.debugPath);
 
-			this.process = spawn(process.execPath, [childPath], {
+			this.process = spawn(process.execPath, [childPath, ...args], {
 				detached: false,
 				stdio:  ['inherit', 'inherit', 'inherit', 'ipc'],
 				env: {
@@ -51,7 +67,7 @@ class PipeBridge extends EventEmitter<PipeEvents> {
 				throw new Error(`Binary path not found: ${configPath}`);
 			};
 			
-			this.process = spawn(binaryPath, [], {
+			this.process = spawn(binaryPath, args, {
 				detached: false,
 				stdio:  ['inherit', 'inherit', 'inherit', 'ipc'],
 				env: {

@@ -15,6 +15,8 @@ export type PipeBridgeConfig = {
 		path?: string;
 		selfPath?: string;
 	};
+	args?: readonly string[];
+	enableParentArgs?: boolean;
 };
 
 
