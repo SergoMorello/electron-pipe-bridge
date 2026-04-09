@@ -47,7 +47,9 @@ class PipeBridge extends EventEmitter<PipeEvents> {
 				: this.config.binary.path;
 			const binaryPath = this.getExistPath(configPath!);
 
-			if (!binaryPath) return;
+			if (!binaryPath) {
+				throw new Error(`Binary path not found: ${configPath}`);
+			};
 			
 			this.process = spawn(binaryPath, [], {
 				detached: false,
